@@ -1,0 +1,36 @@
+-- TP JOINTURES :
+-- 1) Vous devez obtenir la liste des races de chiens
+-- qui sont des chiens de berger.
+
+select * from race 
+WHERE nom LIKE 'berger';
+
+-- 2) Vous devez obtenir la liste des animaux
+-- (leur nom, date de naissance et race) 
+-- pour lesquels nous n'avons aucune information sur leur pelage. 
+
+SELECT animal.nom
+	,date_naissance
+	,race.nom
+FROM animal
+JOIN race
+ON animal.race_id = race.id
+WHERE race.description NOT LIKE 'pelage';
+
+-- 3) Vous devez obtenir la liste des chats et des perroquets amazones,
+-- avec leur sexe, leur espèce (nom latin) et leur race s'ils en ont une.
+-- Regroupez les chats ensemble, les perroquets ensemble et,
+-- au sein de l'espèce, regroupez les races.
+
+SELECT  animal.nom
+        ,espece.nom_latin as espece
+        ,animal.sexe
+        ,race.nom as race
+FROM animal
+LEFT JOIN espece
+    ON animal.espece_id = espece.id
+LEFT JOIN race
+    ON animal.race_id = race.id
+WHERE espece.nom_courant = 'chat' 
+OR espece.nom_courant = 'perroquet amazone'
+order by espece, race;

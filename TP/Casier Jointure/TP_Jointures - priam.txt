@@ -1,0 +1,18 @@
+-- TP JOINTURES :
+-- 1)
+SELECT * FROM race WHERE nom LIKE '%berger%';
+
+-- 2)
+SELECT Animal.nom, date_naissance, race.nom FROM Animal
+JOIN race ON Animal.race_id = race.id
+WHERE race.description NOT LIKE '%pelage%';
+
+
+-- 3)
+SELECT Animal.nom, Animal.sexe, espece.nom_latin as espece, race.nom as race FROM Animal
+LEFT JOIN espece ON Animal.espece_id = espece.id
+LEFT JOIN race ON Animal.race_id = race.id
+WHERE espece.nom_courant='chat' OR espece.nom_courant='perroquet'
+Order by espece, race;
+
+-- 4)

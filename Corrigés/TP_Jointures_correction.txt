@@ -1,0 +1,110 @@
+-- TP JOINTURES :
+USE elevage;
+
+-- 1) Vous devez obtenir la liste des races de chiens
+-- qui sont des chiens de berger.
+-- Quelles tables ? Quelles jointures ? Quels filtres ?
+
+SELECT Race.nom as race
+FROM race
+JOIN espece 
+	ON espece.id = race.espece_id
+WHERE espece.nom_courant = 'chien' AND nom LIKE '%Berger%';
+
+-- 2) Vous devez obtenir la liste des animaux
+-- (leur nom, date de naissance et race) 
+-- pour lesquels nous n'avons aucune information sur leur pelage.
+
+SELECT * FROM race
+WHERE race.description NOT LIKE '%pelage%';
+
+SELECT  animal.nom
+		,animal.date_naissance
+        ,race.nom as race
+FROM animal
+LEFT JOIN race
+	ON animal.race_id = race.id
+WHERE race.description NOT LIKE '%pelage%'
+AND race.description NOT LIKE '%poil%'
+AND race.description NOT LIKE '%robe%'
+OR race.description IS NULL;
+
+-- 3) Vous devez obtenir la liste des chats et des perroquets amazones,
+-- avec leur sexe, leur espèce (nom latin) et leur race s'ils en ont une.
+-- Regroupez les chats ensemble, les perroquets ensemble et,
+-- au sein de l'espèce, regroupez les races.
+
+SELECT ani.nom ,ani.sexe ,esp.nom_latin ,race.nom
+FROM animal as ani
+LEFT JOIN race
+	ON ani.race_id = race.id
+JOIN espece as esp
+	ON ani.espece_id = esp.id
+WHERE esp.nom_courant ='chat' OR esp.nom_courant = 'perroquet amazone'
+ORDER BY ani.espece_id, ani.race_id;
+
+-- test de la sensibilité à la casse :
+UPDATE espece 
+SET nom_courant = 'Chat' WHERE nom_courant = 'CHAT';
+
+SELECT * FROM espece;
+
+-- 4) Vous devez obtenir la liste des chiennes dont on connaît la race,
+-- et qui sont en âge de procréer (c'est-à-dire nées avant juillet 2010).
+-- Affichez leurs nom, date de naissance et race.
+
+SELECT *
+FROM animal 
+JOIN race
+	ON animal.race_id = race.id
+JOIN espece 
+	ON animal.espece_id = espece.id
+WHERE espece.nom_courant = 'chien'
+AND animal.sexe = 'F'
+AND animal.date_naissance < '2010-07-01'
+AND animal.race_id IS NOT NULL;
+
+-- Pour les énervés de la jointure :
+-- 1) Vous devez obtenir la liste des chats dont on connaît les parents,
+-- ainsi que le nom de ces parents.
+
+SELECT Enfant.nom enfant, Mere.nom as maman, Pere.nom as papa
+FROM Animal as Enfant
+JOIN Animal as Mere ON Enfant.mere_id = Mere.id
+JOIN Animal as Pere ON Enfant.pere_id = Pere.id
+JOIN Espece ON Espece.id = Enfant.espece_id
+WHERE nom_courant = 'chat';
+
+-- 2) Vous devez maintenant obtenir la liste des enfants de Bouli
+-- (nom, sexe et date de naissance).
+
+
+SET @v_parent  = 'Bouli';
+
+SELECT Enfant.nom, Enfant.sexe, Enfant.date_naissance
+FROM Animal as Enfant
+JOIN Animal as Pere ON Enfant.pere_id = Pere.id
+JOIN Animal as Mere ON Enfant.mere_id = Mere.id
+WHERE Pere.nom = @v_parent OR Mere.nom = @v_parent;
+
+
+-- Pour la suivante, bon courage :)
+-- 3) Vous devez obtenir la liste des animaux
+-- dont on connaît le père, la mère, la race,
+-- la race du père, la race de la mère.
+-- Affichez le nom et la race de l'animal et de ses parents,
+-- ainsi que l'espèce de l'animal (pas des parents).
+
+SELECT Enfant.nom enfant, Espece.nom_courant as espece, Race.nom as race,
+Mere.nom as maman, Race_Mere.nom as race_mere,
+Pere.nom as papa, Race_Pere.nom as race_pere
+FROM Animal as Enfant
+JOIN Animal as Mere ON Enfant.mere_id = Mere.id
+JOIN Animal as Pere ON Enfant.pere_id = Pere.id
+JOIN Espece ON Espece.id = Enfant.espece_id
+LEFT JOIN Race ON Race.id = Enfant.race_id
+LEFT JOIN Race as Race_Mere ON Race_Mere.id = Mere.race_id
+LEFT JOIN Race as Race_Pere ON Race_Pere.id = Pere.race_id;
+
+
+
